@@ -143,6 +143,7 @@ float lerp(float start, float end, float progress)
   return start + (end - start) * progress;
 }
 */
+//od tej chwiliii ->///
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -152,28 +153,44 @@ float lerp(float start, float end, float progress)
 
 RF24 radio(7, 8);
 
+
+Servo esc6;
+Servo esc3;
+Servo esc5;
 Servo esc9;
+
 const byte rxAddr[6] = "00001";
-int pot1Value;
+
 struct DataPacket
 {
  int pot1Value;
+ int pot2Value;
 };
 DataPacket packet;
 
 void resetData()
 {
-  pot1Value=0;
+  packet.pot1Value=0;
+  packet.pot2Value=0;
+
 }
 void setup()
 {
 
+
+esc6.attach(6);
+esc3.attach(3);
+esc5.attach(5);
 esc9.attach(9);
 delay(2000);
 radio.begin();
   radio.openReadingPipe(1, rxAddr);
   radio.startListening();
-  pinMode(9,OUTPUT);
+
+     pinMode(6,OUTPUT);
+      pinMode(3,OUTPUT);
+       pinMode(5,OUTPUT);
+        pinMode(9,OUTPUT);
 
 
 
@@ -202,11 +219,18 @@ resetData();
 
 }
 int led1Value = map(packet.pot1Value, 0, 1023, 1000, 2000);
-    esc9.writeMicroseconds(led1Value);
+int led2Value = map(packet.pot2Value,0, 1023, 1000, 2000);
+
+
+      esc6.writeMicroseconds(led1Value);
+       esc9.writeMicroseconds(led1Value);
+        esc5.writeMicroseconds(led2Value);
+         esc3.writeMicroseconds(led2Value);
+      
 }
 
-/*
 
+/*
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
@@ -217,6 +241,8 @@ const byte rxAddr[6] = "00001";
 
 struct DataPacket {
   int pot1Value;
+  int pot2Value;
+
  
   
 
@@ -236,6 +262,7 @@ void loop()
   DataPacket packet;
   
   packet.pot1Value = analogRead(A2);
+  packet.pot2Value=analogRead(A1);
  
   //packet.button=digitalRead(2);
   
@@ -243,6 +270,7 @@ void loop()
   
   Serial.print("Pot1: ");
   Serial.print(packet.pot1Value);
+  Serial.print(packet.pot2Value);
 
   
   delay(100);
